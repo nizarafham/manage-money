@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final StorageService _storageService = StorageService();
   List<Transaction> _transactions = [];
-  int _selectedIndex = 0; // Tambahkan indeks untuk navbar
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -102,22 +102,24 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Widget page;
     if (_selectedIndex == 0) {
-      page = Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Total Transaksi: ${_calculateTotal().toStringAsFixed(2)}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      page = SafeArea( // Bungkus dengan SafeArea
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Total Transaksi: ${_calculateTotal().toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          Expanded(
-            child: TransactionList(
-              transactions: _transactions,
-              onDelete: _deleteTransaction,
+            Expanded( // Pastikan Expanded digunakan
+              child: TransactionList(
+                transactions: _transactions,
+                onDelete: _deleteTransaction,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     } else {
       page = ChartScreen(transactions: _transactions);
@@ -125,14 +127,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Transaction Tracker'),
+        title: const Text('Transaction Tracker'),
       ),
-      body: page, // Gunakan widget 'page' yang ditentukan oleh indeks
-      floatingActionButton: _selectedIndex == 0 //Tampilkan Fab hanya di home
+      body: page,
+      floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
               onPressed: _addTransaction,
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
             )
+          : null,
+      floatingActionButtonLocation: _selectedIndex == 0
+          ? FloatingActionButtonLocation.centerDocked
           : null,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
