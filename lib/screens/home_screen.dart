@@ -12,6 +12,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final StorageService _storageService = StorageService();
   List<Transaction> _transactions = [];
+  int _selectedIndex = 0; // Tambahkan indeks untuk navbar
 
   @override
   void initState() {
@@ -91,26 +92,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return _transactions.fold(0, (sum, transaction) => sum + transaction.amount);
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Transaction Tracker'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.bar_chart),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChartScreen(transactions: _transactions),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Column(
+    Widget page;
+    if (_selectedIndex == 0) {
+      page = Column(
         children: [
           Padding(
             padding: EdgeInsets.all(16),
@@ -126,10 +118,36 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      );
+    } else {
+      page = ChartScreen(transactions: _transactions);
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Transaction Tracker'),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addTransaction,
-        child: Icon(Icons.add),
+      body: page, // Gunakan widget 'page' yang ditentukan oleh indeks
+      floatingActionButton: _selectedIndex == 0 //Tampilkan Fab hanya di home
+          ? FloatingActionButton(
+              onPressed: _addTransaction,
+              child: Icon(Icons.add),
+            )
+          : null,
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Chart',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
