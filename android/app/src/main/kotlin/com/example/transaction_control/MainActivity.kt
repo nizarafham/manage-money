@@ -1,4 +1,4 @@
-package com.example.atur_duit
+package com.example.transaction_control
 
 import io.flutter.embedding.android.FlutterActivity
 

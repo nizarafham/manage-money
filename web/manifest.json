@@ -1,6 +1,6 @@
 {
-    "name": "atur_duit",
-    "short_name": "atur_duit",
+    "name": "transaction_control",
+    "short_name": "transaction_control",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
