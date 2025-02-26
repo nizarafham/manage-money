@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import '../services/storage_service.dart';
 import '../widgets/transaction_list.dart';
+import '../widgets/add_transaction_popup.dart';
 import 'chart_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -28,59 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _addTransaction() async {
-    final categoryController = TextEditingController();
-    final amountController = TextEditingController();
-    final noteController = TextEditingController();
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Tambah Transaksi'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: categoryController,
-                decoration: InputDecoration(labelText: 'Kategori'),
-              ),
-              TextField(
-                controller: amountController,
-                decoration: InputDecoration(labelText: 'Harga'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: noteController,
-                decoration: InputDecoration(labelText: 'Catatan (opsional)'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final newTransaction = Transaction(
-                  id: DateTime.now().toString(),
-                  category: categoryController.text,
-                  amount: double.parse(amountController.text),
-                  date: DateTime.now(),
-                  note: noteController.text.isNotEmpty ? noteController.text : null,
-                );
-                await _storageService.saveTransaction(newTransaction);
-                _loadTransactions();
-                Navigator.pop(context);
-              },
-              child: Text('Simpan'),
-            ),
-          ],
-        );
-      },
-    );
+    await showAddTransactionDialog(context, _loadTransactions); // Panggil fungsi dari file terpisah
   }
 
   Future<void> _deleteTransaction(String id) async {
