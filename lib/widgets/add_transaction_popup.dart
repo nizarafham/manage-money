@@ -123,7 +123,7 @@ Future<void> showAddTransactionDialog(BuildContext context, Function() onTransac
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        backgroundColor: Colors.white, // Warna latar belakang popup
+        backgroundColor: Colors.pink[50], // Warna latar belakang popup
       );
     },
   );

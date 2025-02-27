@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _addTransaction() async {
-    await showAddTransactionDialog(context, _loadTransactions); // Panggil fungsi dari file terpisah
+    await showAddTransactionDialog(context, _loadTransactions);
   }
 
   Future<void> _deleteTransaction(String id) async {
@@ -51,17 +51,28 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Widget page;
     if (_selectedIndex == 0) {
-      page = SafeArea( // Bungkus dengan SafeArea
+      page = SafeArea(
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(
-                'Total Transaksi: ${_calculateTotal().toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              child: Container(
+                height: 150,
+                width: double.infinity, // Lebar penuh layar
+                decoration: BoxDecoration(
+                  color: Colors.blue[100], // Warna latar belakang kotak
+                  borderRadius: BorderRadius.circular(25), // Kelengkungan 25
+                ),
+                padding: const EdgeInsets.all(20), // Padding di dalam kotak
+                child: Center(
+                  child: Text(
+                    'Total Transaksi: ${_calculateTotal().toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
             ),
-            Expanded( // Pastikan Expanded digunakan
+            Expanded(
               child: TransactionList(
                 transactions: _transactions,
                 onDelete: _deleteTransaction,
