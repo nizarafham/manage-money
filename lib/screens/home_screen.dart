@@ -14,6 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final StorageService _storageService = StorageService();
   List<Transaction> _transactions = [];
   int _selectedIndex = 0;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -38,13 +39,37 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   double _calculateTotal() {
-    return _transactions.fold(0, (sum, transaction) => sum + transaction.amount);
+    if (_selectedDate == null) {
+      return _transactions.fold(0, (sum, transaction) => sum + transaction.amount);
+    } else {
+      return _transactions
+          .where((transaction) =>
+              transaction.date.year == _selectedDate!.year &&
+              transaction.date.month == _selectedDate!.month &&
+              transaction.date.day == _selectedDate!.day)
+          .fold(0, (sum, transaction) => sum + transaction.amount);
+    }
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      initialDatePickerMode: DatePickerMode.day, // Ubah ke DatePickerMode.day
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked; // Simpan tanggal lengkap
+      });
+    }
   }
 
   @override
@@ -58,24 +83,76 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(16),
               child: Container(
                 height: 150,
-                width: double.infinity, // Lebar penuh layar
+                width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.blue[100], // Warna latar belakang kotak
-                  borderRadius: BorderRadius.circular(25), // Kelengkungan 25
-                ),
-                padding: const EdgeInsets.all(20), // Padding di dalam kotak
-                child: Center(
-                  child: Text(
-                    'Total Transaksi: ${_calculateTotal().toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFE8F9FF),
+                      Color(0xFFC4D9FF),
+                      Color(0xFFC5BAFF),
+                    ],
                   ),
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Total Transaksi: Rp ${_calculateTotal().toStringAsFixed(2)}',
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                  ],
                 ),
               ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _selectDate(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFFBFBFB),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.transparent),
+                    ),
+                  ),
+                  child: Text(
+                    _selectedDate == null
+                        ? 'Pilih Tanggal'
+                        : 'Tanggal: ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                  ),
+                ),
+                SizedBox(width: 10),
+                if (_selectedDate != null)
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedDate = null;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFFBFBFB),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(color: Colors.transparent),
+                      ),
+                    ),
+                    child: Text('Lihat Semua'),
+                  ),
+              ],
             ),
             Expanded(
               child: TransactionList(
                 transactions: _transactions,
                 onDelete: _deleteTransaction,
+                selectedDate: _selectedDate,
               ),
             ),
           ],
@@ -87,13 +164,31 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transaction Tracker'),
+        title: const Text('Pocket Book!'),
+        backgroundColor: Color(0xFFFBFBFB),
       ),
       body: page,
+      backgroundColor: Color(0xFFFBFBFB),
       floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton(
-              onPressed: _addTransaction,
-              child: const Icon(Icons.add),
+          ? Container(
+              width: 56.0, // Sesuaikan ukuran (sesuai FloatingActionButton)
+              height: 56.0, // Sesuaikan ukuran (sesuai FloatingActionButton)
+              decoration: BoxDecoration(
+                shape: BoxShape.circle, // Membuat bentuk lingkaran
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFC5BAFF),
+                    Color(0xFFC4D9FF),
+                    Color(0xFFE8F9FF),
+                  ],
+                ),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.add, color: Colors.grey,), // sesuaikan warna icon
+                onPressed: _addTransaction,
+              ),
             )
           : null,
       floatingActionButtonLocation: _selectedIndex == 0
@@ -111,7 +206,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        backgroundColor: Color(0xFFFBFBFB),
+        selectedItemColor: Color(0xFFC5BAFF),
         onTap: _onItemTapped,
       ),
     );

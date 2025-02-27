@@ -12,13 +12,27 @@ class ChartScreen extends StatelessWidget {
     final categoryAmounts = _calculateCategoryAmounts();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Grafik Pengeluaran'),
-      ),
+      // appBar: AppBar(
+      //   // title: Text('Grafik Pengeluaran'),
+      // ),
+      backgroundColor: Color(0xFFFBFBFB),
       body: Column(
         children: [
           Expanded(
-            child: TransactionChart(transactions: transactions),
+            child: TransactionChart(
+              transactions: transactions,
+              onCategorySelected: (category) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategoryTransactionList(
+                      transactions: transactions,
+                      category: category,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
           Expanded(
             child: ListView(
@@ -45,5 +59,39 @@ class ChartScreen extends StatelessWidget {
       );
     }
     return categoryAmounts;
+  }
+}
+
+class CategoryTransactionList extends StatelessWidget {
+  final List<Transaction> transactions;
+  final String category;
+
+  const CategoryTransactionList({
+    required this.transactions,
+    required this.category,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredTransactions =
+        transactions.where((t) => t.category == category).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Transaksi $category'),
+      ),
+      backgroundColor: Color(0xFFFBFBFB),
+      body: ListView.builder(
+        itemCount: filteredTransactions.length,
+        itemBuilder: (context, index) {
+          final transaction = filteredTransactions[index];
+          return ListTile(
+            title: Text(transaction.category),
+            subtitle: Text(
+                '${transaction.amount.toStringAsFixed(2)} - ${transaction.date.toString()} - ${transaction.note}'),
+          );
+        },
+      ),
+    );
   }
 }
